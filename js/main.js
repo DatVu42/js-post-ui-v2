@@ -7,7 +7,7 @@ async function main() {
             _limit: 5
         }
         const response = await postApi.getAll(params)
-        console.log(response);
+        console.log('response', response);
     } catch (error) {
         console.log(error);
     }
