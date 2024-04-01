@@ -42,6 +42,7 @@ function renderPostList(postList) {
   if (!postList) return
 
   const ulElement = document.getElementById('postList')
+  ulElement.textContent = ''
 
   postList.forEach((post) => {
     const liElement = createPostElement(post)
@@ -49,15 +50,44 @@ function renderPostList(postList) {
   })
 }
 
+async function handleFilterChange(filterName, filterValue) {
+  try {
+    // update params
+    const url = new URL(window.location)
+    url.searchParams.set(filterName, filterValue)
+    history.pushState({}, '', url)
+
+    // fet data & re-render post list
+    const {data, pagination} = await postApi.getAll(url.searchParams)
+    renderPostList(data)
+    renderPagination(pagination)
+  } catch (error) {
+    console.log('Fail to fetch post list!', error)
+  }
+}
+
 function handlePrevClick() {
-  console.log('Prev click')
+  const ulPagination = getUlPagination()
+  if (!ulPagination) return
+
+  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  if (page <= 1) return
+
+  handleFilterChange('_page', page - 1)
 }
 
 function handleNextClick() {
-  console.log('Next click')
+  const ulPagination = getUlPagination()
+  if (!ulPagination) return
+
+  const page = Number.parseInt(ulPagination.dataset.page) || 1
+  const totalPages = Number.parseInt(ulPagination.dataset.totalPages)
+  if (page >= totalPages) return
+
+  handleFilterChange('_page', page + 1)
 }
 
-function handlePagination() {
+function initPagination() {
   const ulPagination = getUlPagination()
   if (!ulPagination) return
 
@@ -83,15 +113,37 @@ function initUrl() {
   history.pushState({}, '', url)
 }
 
+function renderPagination(pagination) {
+  const ulPagination = getUlPagination()
+  if (!pagination || !ulPagination) return
+
+  // calc totalPages
+  const {_page, _limit, _totalRows} = pagination
+  const totalPages = Math.ceil(_totalRows / _limit)
+
+  // update page & totalPages on ulPagination
+  ulPagination.dataset.page = _page
+  ulPagination.dataset.totalPages = totalPages
+
+  // check disable/enable next & prev
+  if (_page <= 1) ulPagination.firstElementChild?.classList.add('disabled')
+  else ulPagination.firstElementChild?.classList.remove('disabled')
+
+  if (_page >= totalPages)
+    ulPagination.lastElementChild?.classList.add('disabled')
+  else ulPagination.lastElementChild?.classList.remove('disabled')
+}
+
 ;(async () => {
   try {
+    initPagination()
     initUrl()
 
     const queryParams = new URLSearchParams(window.location.search)
     const {data, pagination} = await postApi.getAll(queryParams)
     renderPostList(data)
-    handlePagination()
+    renderPagination(pagination)
   } catch (error) {
-    console.log('Network something wrong!', error)
+    console.log('Get all failed', error)
   }
 })()
