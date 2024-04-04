@@ -3,6 +3,7 @@ import {getUlPagination, setTextContent, truncateText} from './utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
+import debounce from 'lodash.debounce'
 
 function createPostElement(post) {
   if (!post) return
@@ -55,6 +56,8 @@ async function handleFilterChange(filterName, filterValue) {
     // update params
     const url = new URL(window.location)
     url.searchParams.set(filterName, filterValue)
+    // reset page if needed
+    if (filterName === 'title_like') url.searchParams.set('_page', 1)
     history.pushState({}, '', url)
 
     // fet data & re-render post list
@@ -106,13 +109,6 @@ function initPagination() {
     })
 }
 
-function initUrl() {
-  const url = new URL(window.location)
-  if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1)
-  if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6)
-  history.pushState({}, '', url)
-}
-
 function renderPagination(pagination) {
   const ulPagination = getUlPagination()
   if (!pagination || !ulPagination) return
@@ -134,12 +130,32 @@ function renderPagination(pagination) {
   else ulPagination.lastElementChild?.classList.remove('disabled')
 }
 
+function initSearch(queryParams) {
+  const searchInput = document.getElementById('searchInput')
+  if (!searchInput) return
+
+  if (queryParams.get('title_like'))
+    searchInput.value = queryParams.get('title_like')
+
+  const debounceSearch = debounce((e) => {
+    handleFilterChange('title_like', e.target.value)
+  }, 500)
+
+  searchInput.addEventListener('input', debounceSearch)
+}
+
 ;(async () => {
   try {
-    initPagination()
-    initUrl()
+    const url = new URL(window.location)
+    if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1)
+    if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6)
 
-    const queryParams = new URLSearchParams(window.location.search)
+    history.pushState({}, '', url)
+    const queryParams = url.searchParams
+
+    initPagination()
+    initSearch(queryParams)
+
     const {data, pagination} = await postApi.getAll(queryParams)
     renderPostList(data)
     renderPagination(pagination)
