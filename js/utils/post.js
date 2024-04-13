@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
-import { setTextContent, truncateText } from './common'
+import {setTextContent, truncateText} from './common'
 
 function createPostElement(post) {
   if (!post) return
@@ -33,6 +33,13 @@ function createPostElement(post) {
     '[data-id="timeSpan"]',
     ` - ${dayjs(post.updatedAt).fromNow()}`,
   )
+
+  const divElement = liElement.firstElementChild
+  if (divElement) {
+    divElement.addEventListener('click', () => {
+      window.location.assign(`/post-detail.html?id=${post.id}`)
+    })
+  }
 
   return liElement
 }
