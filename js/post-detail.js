@@ -1,34 +1,38 @@
-import postApi from './api/postApi'
-import { setTextContent } from './utils'
 import dayjs from 'dayjs'
+import postApi from './api/postApi'
+import { registerLightbox, setTextContent } from './utils'
 
 function renderPostDetail(post) {
-    if (!post) return
+  if (!post) return
 
-    setTextContent(document, '#postDetailTitle', post.title)
-    setTextContent(document, '#postDetailAuthor', post.author)
-    setTextContent(document, '#postDetailTimeSpan', ` - ${dayjs(post.updatedAt).format('DD MM YYYY HH:MM')}`)
-    setTextContent(document, '#postDetailDescription', post.description)
+  setTextContent(document, '#postDetailTitle', post.title)
+  setTextContent(document, '#postDetailAuthor', post.author)
+  setTextContent(
+    document,
+    '#postDetailTimeSpan',
+    ` - ${dayjs(post.updatedAt).format('DD MM YYYY HH:MM')}`,
+  )
+  setTextContent(document, '#postDetailDescription', post.description)
 
-    const heroImageElement = document.getElementById('postHeroImage')
-    if (heroImageElement) {
-        heroImageElement.style.backgroundImage = `url('${post.imageUrl}')`
+  const heroImageElement = document.getElementById('postHeroImage')
+  if (heroImageElement) {
+    heroImageElement.style.backgroundImage = `url('${post.imageUrl}')`
 
-        heroImageElement.addEventListener('error', () => {
-            heroImageElement.style.backgroundImage = 'url("https://picsum.photos/id/37/1368/400")'
-        })
-    }
-
-    const editPage = document.getElementById('goToEditPageLink')
-    if (editPage) {
-        editPage.textContent = 'Edit page'
-        editPage.addEventListener('click', () => {
-            window.location.assign(`/add-edit-post.html?id=${post.id}`)
-        })
-    }
+    heroImageElement.addEventListener('error', () => {
+      heroImageElement.style.backgroundImage =
+        'url("https://picsum.photos/id/37/1368/400")'
+    })
+  }
 }
 
 ;(async () => {
+  registerLightbox({
+    modalId: 'lightbox',
+    imgSelector: 'img[data-id="lightboxImg"]',
+    prevSelector: 'button[data-id="lightboxPrev"]',
+    nextSelector: 'button[data-id="lightboxNext"]'
+  })
+
   try {
     // get query params => post id
     const queryParams = new URLSearchParams(window.location.search)
