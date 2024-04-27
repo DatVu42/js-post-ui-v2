@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import postApi from './api/postApi'
-import { registerLightbox, setTextContent } from './utils'
+import { registerLightbox, setBackgroundImage, setTextContent } from './utils'
 
 function renderPostDetail(post) {
   if (!post) return
@@ -14,15 +14,12 @@ function renderPostDetail(post) {
   )
   setTextContent(document, '#postDetailDescription', post.description)
 
-  const heroImageElement = document.getElementById('postHeroImage')
-  if (heroImageElement) {
-    heroImageElement.style.backgroundImage = `url('${post.imageUrl}')`
+  setBackgroundImage(document, '#postHeroImage', post.imageUrl)
 
-    heroImageElement.addEventListener('error', () => {
-      heroImageElement.style.backgroundImage =
-        'url("https://picsum.photos/id/37/1368/400")'
-    })
-  }
+  const editPage = document.getElementById('goToEditPageLink')
+  if (editPage) editPage.addEventListener('click', () => {
+    window.location.assign(`/add-edit-post.html?id=${post.id}`)
+  })
 }
 
 ;(async () => {

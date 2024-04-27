@@ -36,10 +36,19 @@ function createPostElement(post) {
 
   const divElement = liElement.firstElementChild
   if (divElement) {
-    divElement.addEventListener('click', () => {
+    divElement.addEventListener('click', (event) => {
+      const editPage = liElement.querySelector('[data-id="edit"]')
+      if (editPage && editPage.contains(event.target)) return
+
       window.location.assign(`/post-detail.html?id=${post.id}`)
     })
   }
+
+  const editPage = liElement.querySelector('[data-id="edit"]')
+  if (editPage)
+    editPage.addEventListener('click', () => {
+      window.location.assign(`/add-edit-post.html?id=${post.id}`)
+    })
 
   return liElement
 }
