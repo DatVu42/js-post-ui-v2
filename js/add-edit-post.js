@@ -1,5 +1,5 @@
 import postApi from './api/postApi'
-import {setFormValues} from './utils'
+import {initPostForm} from './utils'
 ;(async () => {
   try {
     const queryParams = new URLSearchParams(window.location.search)
@@ -14,7 +14,11 @@ import {setFormValues} from './utils'
           imageUrl: '',
         }
 
-    setFormValues(defaultValues)
+    initPostForm({
+      formId: 'postForm',
+      defaultValues,
+      onSubmit: formValues => console.log('submit', formValues)
+    })
   } catch (error) {
     console.log('Failed to fet add edit post', error)
   }

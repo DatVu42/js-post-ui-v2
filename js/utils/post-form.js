@@ -1,14 +1,18 @@
 import { setBackgroundImage, setFieldValue } from "./common"
 
 
-export function setFormValues(formValues) {
-    const postForm = document.getElementById('postForm')
-    if (!postForm || !formValues) return
+export function setFormValues(form, formValues) {
+    setFieldValue(form, '[name="title"]', formValues?.title)
+    setFieldValue(form, '[name="author"]', formValues?.author)
+    setFieldValue(form, '[name="description"]', formValues?.description)
 
-    setFieldValue(postForm, '[name="title"]', formValues.title)
-    setFieldValue(postForm, '[name="author"]', formValues.author)
-    setFieldValue(postForm, '[name="description"]', formValues.description)
+    setFieldValue(form, '[name="imageUrl"]', formValues?.imageUrl)
+    setBackgroundImage(document, '#postHeroImage', formValues?.imageUrl)
+}
 
-    setFieldValue(postForm, '[name="imageUrl"]', formValues.imageUrl)
-    setBackgroundImage(document, '#postHeroImage', formValues.imageUrl)
+export function initPostForm({formId, defaultValues, onSubmit}) {
+    const form = document.getElementById(formId)
+    if (!form) return
+
+    setFormValues(form, defaultValues)
 }
