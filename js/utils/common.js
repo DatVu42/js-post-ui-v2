@@ -29,3 +29,12 @@ export function setFieldValue(form, selector, value) {
   const field = form.querySelector(selector)
   if (field) field.value = value
 }
+
+export function setFieldError(form, name, error) {
+  const element = form.querySelector(`[name="${name}"]`)
+  if (element) {
+    element.setCustomValidity(error)
+
+    setTextContent(element.parentElement, ".invalid-feedback", error)
+  }
+}
