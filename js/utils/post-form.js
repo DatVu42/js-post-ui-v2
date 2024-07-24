@@ -82,6 +82,6 @@ export function initPostForm({formId, defaultValues, onSubmit}) {
     const isValid = await validatePostForm(form, formValues)
     if (!isValid) return
 
-    onSubmit?.(formValues)
+    await onSubmit?.(formValues)
   })
 }
