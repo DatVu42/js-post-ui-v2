@@ -67,14 +67,37 @@ async function validatePostForm(form, formValues) {
   return isValid
 }
 
+function showLoading(form) {
+  const button = form.querySelector('[name="submit"]')
+  if (button) {
+    button.disabled = true
+    button.textContent = 'Saving...'
+  }
+}
+
+function hideLoading(form) {
+  const button = form.querySelector('[name="submit"]')
+  if (button) {
+    button.disabled = false
+    button.textContent = 'Save'
+  }
+}
+
 export function initPostForm({formId, defaultValues, onSubmit}) {
   const form = document.getElementById(formId)
   if (!form) return
 
   setFormValues(form, defaultValues)
 
+  let submitting = false
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
+
+    if (submitting) return
+
+    submitting = true
+    showLoading(form)
 
     const formValues = getFormValues(form)
     formValues.id = defaultValues.id
@@ -83,5 +106,6 @@ export function initPostForm({formId, defaultValues, onSubmit}) {
     if (!isValid) return
 
     await onSubmit?.(formValues)
+    hideLoading(form)
   })
 }
