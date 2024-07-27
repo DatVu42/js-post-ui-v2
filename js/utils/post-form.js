@@ -1,4 +1,9 @@
-import {setBackgroundImage, setFieldError, setFieldValue} from './common'
+import {
+  randomNumber,
+  setBackgroundImage,
+  setFieldError,
+  setFieldValue,
+} from './common'
 import * as yup from 'yup'
 
 function setFormValues(form, formValues) {
@@ -36,13 +41,17 @@ function getPostSchema() {
           value.split(' ').filter((x) => !!x && x.length >= 3).length >= 2,
       ),
     description: yup.string(),
+    imageUrl: yup
+      .string()
+      .required('Please random a background image')
+      .url('Please enter a valid url'),
   })
 }
 
 async function validatePostForm(form, formValues) {
   try {
     // reset previous errors
-    ;['title', 'author'].forEach((name) => setFieldError(form, name, ''))
+    ;['title', 'author', 'imageUrl'].forEach((name) => setFieldError(form, name, ''))
 
     const postSchema = getPostSchema()
     await postSchema.validate(formValues, {abortEarly: false})
@@ -83,6 +92,18 @@ function hideLoading(form) {
   }
 }
 
+function initRandomImage(form) {
+  const randomButton = document.getElementById('postChangeImage')
+  if (!randomButton) return
+
+  randomButton.addEventListener('click', () => {
+    const imageUrl = `https://picsum.photos/id/${randomNumber(1000)}/1368/400`
+
+    setFieldValue(form, '[name="imageUrl"]', imageUrl)
+    setBackgroundImage(document, '#postHeroImage', imageUrl)
+  })
+}
+
 export function initPostForm({formId, defaultValues, onSubmit}) {
   const form = document.getElementById(formId)
   if (!form) return
@@ -90,6 +111,8 @@ export function initPostForm({formId, defaultValues, onSubmit}) {
   setFormValues(form, defaultValues)
 
   let submitting = false
+
+  initRandomImage(form)
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()

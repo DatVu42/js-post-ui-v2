@@ -38,3 +38,9 @@ export function setFieldError(form, name, error) {
     setTextContent(element.parentElement, ".invalid-feedback", error)
   }
 }
+
+export function randomNumber(n) {
+  if (n <= 0) return -1
+
+  return Math.round(Math.random() * n)
+}
